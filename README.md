@@ -46,12 +46,10 @@ python extract_prokka_protein.py --input prokka_results --output proteins/
 ```
 3. Run POCP calculation
 ```bash
-python GenomePOCPCalculator.py query_genome.faa subject_genome.faa \
-    --output blastp_output.txt \
-    --evalue 1e-5 \
-    --identity 40 \
-    --coverage 50 \
-    --num_threads 4
+python GenomePOCPCalculator.py \                                       
+    -i proteins \
+    -o pocp_matrix.tsv \
+    -t 8
 ```
 📊 Parameters
 query_genome → Path to the query genome protein sequence file (FASTA format)
