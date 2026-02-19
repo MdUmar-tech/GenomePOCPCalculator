@@ -119,6 +119,11 @@ T2 = Total proteins in Genome 2
 Qin, Q.-L., Xie, B.-B., Zhang, X.-Y., et al. (2014).
 A proposed genus boundary for the prokaryotes based on genomic insights. Journal of Bacteriology, 196(12), 2210–2215. https://doi.org/10.1128/JB.01688-14
 
+Future Improvements
+Integration of high-speed protein search engines (e.g., DIAMOND, MMseqs2) for large-scale genome comparisons.
+Automated visualization of POCP similarity matrices.
+Enhanced parallel computing support for high-throughput analyses.
+
 Author
 Md Umar
 
