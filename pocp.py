@@ -89,12 +89,10 @@ def calculate_pocp(C1, T1, C2, T2):
 # --------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="All-vs-All POCP calculator (Improved)")
-    parser.add_argument("-i", "--input", required=True,
-                        help="Folder containing protein FASTA files (.faa)")
-    parser.add_argument("-o", "--output", required=True,
-                        help="Output folder")
-    parser.add_argument("-t", "--threads", type=int, default=4,
-                        help="Number of BLAST threads")
+    parser.add_argument("-i", "--input", required=True, help="Folder containing protein FASTA files (.faa)")
+    parser.add_argument("-o", "--output", required=True, help="Output folder")
+    parser.add_argument("-t", "--threads", type=int, default=4, help="Number of BLAST threads")
+    parser.add_argument("--clean", action="store_true", help="Remove BLAST database and BLAST output files after completion")
 
     args = parser.parse_args()
 
@@ -186,7 +184,23 @@ def main():
 
     print(f"\nPOCP matrix saved to: {matrix_file}")
     print(f"Protein statistics saved to: {stats_file}")
-
-
-if __name__ == "__main__":
-    main()
+    # --------------------------------------------------
+    # Cleanup section
+    # --------------------------------------------------
+    if args.clean:
+        print("\nCleaning BLAST intermediate files...")
+    
+        # Remove BLAST output files
+        for file in os.listdir(blast_dir):
+            os.remove(os.path.join(blast_dir, file))
+    
+        # Remove BLAST database files
+        for file in os.listdir(db_dir):
+            os.remove(os.path.join(db_dir, file))
+    
+        print("Cleanup complete.")
+    
+    
+    
+    if __name__ == "__main__":
+        main()
