@@ -48,50 +48,76 @@ python extract_prokka_protein.py --input prokka_results --output proteins/
 ```bash
 python GenomePOCPCalculator.py \                                       
     -i proteins \
-    -o pocp_matrix.tsv \
+    -o pocp_results \
     -t 8
 ```
 📊 Parameters
-query_genome → Path to the query genome protein sequence file (FASTA format)
+Parameter	Description
+-i, --input	Folder containing protein FASTA files (.faa)
+-o, --output	Output directory where results will be stored
+-t, --threads	Number of CPU threads for BLASTP (default: 4)
+--clean	Remove intermediate BLAST database and BLAST output files after completion
 
-subject_genome → Path to the subject genome protein sequence file (FASTA format)
+📂 Output Structure
 
---output → Output file for BLASTP results (default: blastp_output.txt)
+After execution, the output directory will contain:
 
---evalue → E-value threshold for BLASTP (default: 1e-5)
+pocp_results/
+├── db/                  # BLAST databases
+├── blast/               # BLAST pairwise results
+├── matrix.tsv           # All-vs-all POCP matrix
+└── protein_stats.tsv    # Detailed statistics for each genome pair
 
---identity → Minimum sequence identity percentage (default: 40)
+📊 Output Files
+1️⃣ matrix.tsv
 
---coverage → Minimum alignable region coverage percentage (default: 50)
+All-vs-all POCP percentage matrix.
 
---num_threads → Number of CPU threads for BLASTP (default: 1)
+Example:
 
-📂 Example
-```bash
-python GenomePOCPCalculator.py genome1.faa genome2.faa \
-    --output results.txt \
-    --identity 40 \
-    --coverage 50 \
-    --num_threads 4
-```
-📜 Output
-BLASTP output file with detailed results (blastp_output.txt)
+        Genome1   Genome2   Genome3
+Genome1   100      62.45     58.33
+Genome2   62.45    100       60.12
+Genome3   58.33    60.12     100
 
-Printed POCP value in console, e.g.:
+2️⃣ protein_stats.tsv
 
-POCP between genome1.faa and genome2.faa: 62.45%
-📐 Algorithm
-Run BLASTP between query and subject protein sequences
+Detailed statistics for each genome pair:
 
-Identify conserved proteins based on identity and coverage thresholds
+Genome1	Genome2	Total_Proteins_G1	Total_Proteins_G2	Conserved_G1	Conserved_G2	POCP
+🧬 Algorithm Overview
 
-Calculate POCP using the formula:
+Build BLAST protein databases for each genome.
 
-📖 Formula & Reference
+Perform bidirectional BLASTP comparisons.
 
-The Python code implements the calculation of Percentage of Conserved Proteins (POCP), as proposed by Qin, Xie et al., 2014:
-POCP = (conserved_proteins_query + conserved_proteins_subject) / 
-       (total_proteins_query + total_proteins_subject) * 100
+Identify conserved proteins based on:
+
+Minimum identity ≥ 40%
+
+Minimum coverage ≥ 50%
+
+Count conserved proteins in both directions.
+
+Calculate POCP using the formula below.
+
+📐 POCP Formula
+POCP = ((C1 + C2) / (T1 + T2)) × 100
+
+Where:
+
+C1 = Conserved proteins from Genome 1 against Genome 2
+
+C2 = Conserved proteins from Genome 2 against Genome 1
+
+T1 = Total proteins in Genome 1
+
+T2 = Total proteins in Genome 2
+
+📖 Reference
+
+Qin, Q.-L., Xie, B.-B., Zhang, X.-Y., et al. (2014).
+A proposed genus boundary for the prokaryotes based on genomic insights. Journal of Bacteriology, 196(12), 2210–2215. https://doi.org/10.1128/JB.01688-14
 
 Author
 Md Umar
