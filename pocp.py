@@ -1,104 +1,192 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
 import argparse
+import itertools
+import pandas as pd
 
-def run_blastp(query, subject, output, evalue=1e-5, identity=40, coverage=50, num_threads=1):
-    """
-    Run BLASTP between query and subject genomes.
-
-    Parameters:
-    - query: Path to the query protein sequence file (FASTA format).
-    - subject: Path to the subject protein sequence file (FASTA format).
-    - output: Output file for BLASTP results.
-    - evalue: E-value threshold (default: 1e-5).
-    - identity: Minimum sequence identity percentage (default: 40).
-    - coverage: Minimum alignable region coverage percentage (default: 50).
-    - num_threads: Number of threads for BLASTP (default: 1).
-    """
-    cmd = [
-        'blastp',
-        '-query', query,
-        '-subject', subject,
-        '-out', output,
-        '-evalue', str(evalue),
-        '-outfmt', '6 std qlen',
-        '-max_target_seqs', '1',
-        '-num_threads', str(num_threads)
-    ]
-    subprocess.run(cmd)
-
-def count_conserved_proteins(blast_output, identity_threshold=40, coverage_threshold=50):
-    """
-    Count the number of conserved proteins based on BLASTP results.
-
-    Parameters:
-    - blast_output: Path to the BLASTP output file.
-    - identity_threshold: Minimum sequence identity percentage (default: 40).
-    - coverage_threshold: Minimum alignable region coverage percentage (default: 50).
-
-    Returns:
-    - Number of conserved proteins.
-    """
-    conserved_proteins = 0
-    query_proteins = set()
-
-    with open(blast_output, 'r') as f:
+# --------------------------------------------------
+# Count total proteins in FASTA
+# --------------------------------------------------
+def count_proteins(fasta_file):
+    count = 0
+    with open(fasta_file) as f:
         for line in f:
-            _, _, _, identity, qcov, _ = line.split()
-            if float(identity) >= identity_threshold and float(qcov) >= coverage_threshold:
-                conserved_proteins += 1
-                query_proteins.add(line.split()[0])
+            if line.startswith(">"):
+                count += 1
+    return count
 
-    return conserved_proteins, query_proteins
 
-def calculate_pocp(conserved_proteins_1, total_proteins_1, conserved_proteins_2, total_proteins_2):
-    """
-    Calculate the Percentage of Conserved Proteins (POCP).
+# --------------------------------------------------
+# Build BLAST database (store inside db folder)
+# --------------------------------------------------
+def build_blast_db(fasta_file, db_dir):
+    basename = os.path.basename(fasta_file)
+    db_path = os.path.join(db_dir, basename)
 
-    Parameters:
-    - conserved_proteins_1: Number of conserved proteins in genome 1.
-    - total_proteins_1: Total number of proteins in genome 1.
-    - conserved_proteins_2: Number of conserved proteins in genome 2.
-    - total_proteins_2: Total number of proteins in genome 2.
+    if not os.path.exists(db_path + ".pin"):
+        print(f"Building BLAST DB for {basename}")
+        subprocess.run([
+            "makeblastdb",
+            "-in", fasta_file,
+            "-dbtype", "prot",
+            "-parse_seqids",
+            "-out", db_path
+        ], check=True)
 
-    Returns:
-    - POCP value.
-    """
-    pocp = ((conserved_proteins_1 + conserved_proteins_2) / (total_proteins_1 + total_proteins_2)) * 100
-    return pocp
+    return db_path
 
+
+# --------------------------------------------------
+# Run BLASTP
+# --------------------------------------------------
+def run_blastp(query, db, output, threads):
+    cmd = [
+        "blastp",
+        "-query", query,
+        "-db", db,
+        "-out", output,
+        "-evalue", "1e-5",
+        "-outfmt", "6 std qlen",
+        "-max_target_seqs", "1",
+        "-num_threads", str(threads)
+    ]
+    subprocess.run(cmd, check=True)
+
+
+# --------------------------------------------------
+# Count conserved proteins
+# --------------------------------------------------
+def count_conserved(blast_output, identity_threshold=40, coverage_threshold=50):
+    conserved = set()
+
+    with open(blast_output) as f:
+        for line in f:
+            cols = line.strip().split()
+            qseqid = cols[0]
+            pident = float(cols[2])
+            length = float(cols[3])
+            qlen = float(cols[12])
+
+            coverage = (length / qlen) * 100
+
+            if pident >= identity_threshold and coverage >= coverage_threshold:
+                conserved.add(qseqid)
+
+    return len(conserved)
+
+
+# --------------------------------------------------
+# Calculate POCP
+# --------------------------------------------------
+def calculate_pocp(C1, T1, C2, T2):
+    return ((C1 + C2) / (T1 + T2)) * 100
+
+
+# --------------------------------------------------
+# Main
+# --------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description='Calculate POCP between two genomes based on BLASTP results.')
-    parser.add_argument('query_genome', help='Path to the query genome protein sequence file (FASTA format).')
-    parser.add_argument('subject_genome', help='Path to the subject genome protein sequence file (FASTA format).')
-    parser.add_argument('--output', default='blastp_output.txt', help='Output file for BLASTP results.')
-    parser.add_argument('--evalue', type=float, default=1e-5, help='E-value threshold for BLASTP (default: 1e-5).')
-    parser.add_argument('--identity', type=float, default=40, help='Minimum sequence identity percentage (default: 40).')
-    parser.add_argument('--coverage', type=float, default=50, help='Minimum alignable region coverage percentage (default: 50).')
-    parser.add_argument('--num_threads', type=int, default=1, help='Number of threads for BLASTP (default: 1).')
+    parser = argparse.ArgumentParser(description="All-vs-All POCP calculator (Improved)")
+    parser.add_argument("-i", "--input", required=True,
+                        help="Folder containing protein FASTA files (.faa)")
+    parser.add_argument("-o", "--output", required=True,
+                        help="Output folder")
+    parser.add_argument("-t", "--threads", type=int, default=4,
+                        help="Number of BLAST threads")
 
     args = parser.parse_args()
 
-    # Run BLASTP
-    run_blastp(args.query_genome, args.subject_genome, args.output,
-               evalue=args.evalue, identity=args.identity, coverage=args.coverage, num_threads=args.num_threads)
+    # -------------------------------
+    # Create output structure
+    # -------------------------------
+    output_dir = args.output
+    db_dir = os.path.join(output_dir, "db")
+    blast_dir = os.path.join(output_dir, "blast")
 
-    # Count conserved proteins for both genomes
-    conserved_proteins_1, query_proteins_1 = count_conserved_proteins(args.output,
-                                                                     identity_threshold=args.identity,
-                                                                     coverage_threshold=args.coverage)
-    conserved_proteins_2, _ = count_conserved_proteins(args.output,
-                                                       identity_threshold=args.identity,
-                                                       coverage_threshold=args.coverage)
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(db_dir, exist_ok=True)
+    os.makedirs(blast_dir, exist_ok=True)
 
-    # Calculate POCP
-    pocp = calculate_pocp(conserved_proteins_1, len(query_proteins_1),
-                          conserved_proteins_2, num_proteins(args.subject_genome))
+    stats_file = os.path.join(output_dir, "protein_stats.tsv")
+    matrix_file = os.path.join(output_dir, "matrix.tsv")
 
-    print(f'POCP between {args.query_genome} and {args.subject_genome}: {pocp:.2f}%')
+    fasta_files = sorted([f for f in os.listdir(args.input) if f.endswith(".faa")])
 
-if __name__ == '__main__':
+    genomes = [os.path.join(args.input, f) for f in fasta_files]
+    genome_names = [os.path.splitext(f)[0] for f in fasta_files]
+
+    # --------------------------------------------------
+    # Build BLAST databases
+    # --------------------------------------------------
+    print("\nBuilding BLAST databases...")
+    db_paths = {}
+    for name, path in zip(genome_names, genomes):
+        db_paths[name] = build_blast_db(path, db_dir)
+
+    # --------------------------------------------------
+    # Count total proteins
+    # --------------------------------------------------
+    total_proteins = {}
+    for name, path in zip(genome_names, genomes):
+        total_proteins[name] = count_proteins(path)
+
+    # --------------------------------------------------
+    # Prepare POCP matrix
+    # --------------------------------------------------
+    matrix = pd.DataFrame(index=genome_names, columns=genome_names)
+
+    # Write header if stats file doesn't exist
+    if not os.path.exists(stats_file):
+        with open(stats_file, "w") as sf:
+            sf.write("Genome1\tGenome2\tTotal_Proteins_G1\tTotal_Proteins_G2\t"
+                     "Conserved_G1\tConserved_G2\tPOCP\n")
+
+    # --------------------------------------------------
+    # All-vs-All comparisons
+    # --------------------------------------------------
+    for i, j in itertools.combinations(range(len(genomes)), 2):
+        name1 = genome_names[i]
+        name2 = genome_names[j]
+
+        g1 = genomes[i]
+        g2 = genomes[j]
+
+        print(f"\nProcessing: {name1} vs {name2}")
+
+        out1 = os.path.join(blast_dir, f"{name1}_vs_{name2}.tab")
+        out2 = os.path.join(blast_dir, f"{name2}_vs_{name1}.tab")
+
+        # Run BLAST both directions
+        run_blastp(g1, db_paths[name2], out1, args.threads)
+        run_blastp(g2, db_paths[name1], out2, args.threads)
+
+        # Count conserved proteins
+        C1 = count_conserved(out1)
+        C2 = count_conserved(out2)
+
+        T1 = total_proteins[name1]
+        T2 = total_proteins[name2]
+
+        pocp_value = calculate_pocp(C1, T1, C2, T2)
+
+        matrix.loc[name1, name2] = round(pocp_value, 2)
+        matrix.loc[name2, name1] = round(pocp_value, 2)
+
+        # Append statistics
+        with open(stats_file, "a") as sf:
+            sf.write(f"{name1}\t{name2}\t{T1}\t{T2}\t{C1}\t{C2}\t{round(pocp_value,2)}\n")
+
+    # Diagonal = 100
+    for g in genome_names:
+        matrix.loc[g, g] = 100.0
+
+    matrix.to_csv(matrix_file, sep="\t")
+
+    print(f"\nPOCP matrix saved to: {matrix_file}")
+    print(f"Protein statistics saved to: {stats_file}")
+
+
+if __name__ == "__main__":
     main()
-
-#python script_name.py query_genome.fasta subject_genome.fasta --output blastp_output.txt --evalue 1e-5 --identity 40 --coverage 50 --num_threads 4
-
