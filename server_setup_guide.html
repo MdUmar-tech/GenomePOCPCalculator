@@ -1,1 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End-to-End (E2E) Server Setup Guide</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 40px;
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #1a73e8;
+}
+
+code {
+    background-color: #e8eaed;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+pre {
+    background-color: #1e1e1e;
+    color: #00ff99;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.warning {
+    color: red;
+    font-weight: bold;
+}
+
+ul {
+    margin-left: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🖥️ End-to-End (E2E) Server Setup Guide</h1>
+<p><a href="https://www.e2enetworks.com/" target="_blank">https://www.e2enetworks.com/</a></p>
+
+<p><strong>Running POCP Pipeline on a Remote Linux Server</strong></p>
+
+<div class="section">
+<h2>Guide Overview</h2>
+<ol>
+<li>Connect to remote server via SSH</li>
+<li>Install Miniconda</li>
+<li>Configure Conda environment</li>
+<li>Install Prokka</li>
+<li>Upload scripts and genomes</li>
+<li>Run POCP workflow using screen</li>
+<li>Download results</li>
+<li>Clean up server</li>
+</ol>
+</div>
+
+<div class="section">
+<h2>🔐 1️⃣ Connect to Remote Server</h2>
+<pre>ssh -i id_rsa root@164.52.215.50</pre>
+
+<p>If using a .pem key:</p>
+<pre>ssh -i mykey.pem root@164.52.215.50</pre>
+</div>
+
+<div class="section">
+<h2>📦 2️⃣ Install Miniconda</h2>
+<pre>wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+source ~/.bashrc
+conda --version</pre>
+</div>
+
+<div class="section">
+<h2>⚙️ 3️⃣ Configure Conda Channels</h2>
+<pre>conda config --remove-key channels
+conda config --add channels conda-forge
+conda config --add channels bioconda
+conda config --add channels defaults
+conda config --set channel_priority strict</pre>
+</div>
+
+<div class="section">
+<h2>🧬 4️⃣ Create Prokka Environment</h2>
+<pre>conda create -n prokka_env prokka=1.15.6 -y
+conda activate prokka_env
+prokka --version</pre>
+</div>
+
+<div class="section">
+<h2>📤 5️⃣ Upload Scripts and Genomes</h2>
+<pre>scp -i mykey.pem -r genomes run_prokka.py extract_prokka_protein.py GenomePOCPCalculator.py root@164.52.215.50:/root/</pre>
+</div>
+
+<div class="section">
+<h2>🖥️ 6️⃣ Use screen for Long Jobs</h2>
+<pre>screen -S pocp</pre>
+
+<p>Detach:</p>
+<pre>Ctrl + A, then D</pre>
+
+<p>Reattach:</p>
+<pre>screen -r pocp
+screen -d -r pocp</pre>
+</div>
+
+<div class="section">
+<h2>🚀 7️⃣ Run POCP Workflow</h2>
+
+<h3>Step 1: Run Prokka</h3>
+<pre>python run_prokka.py
+ls prokka_results/</pre>
+
+<h3>Step 2: Extract Proteins</h3>
+<pre>python extract_prokka_protein.py</pre>
+
+<h3>Step 3: Run POCP Calculation</h3>
+<pre>python GenomePOCPCalculator.py -i proteins -o pocp_results -t 18</pre>
+</div>
+
+<div class="section">
+<h2>📥 8️⃣ Download Results</h2>
+<pre>scp -i mykey.pem -r root@164.52.215.50:/root/pocp_results .</pre>
+</div>
+
+<div class="section">
+<h2>🧹 9️⃣ Clean Up Server</h2>
+<pre>rm -rf /root/*</pre>
+<p class="warning">⚠ WARNING: This permanently deletes all files in /root/.</p>
+</div>
+
+<div class="section">
+<h2>🔚 1️⃣0️⃣ Exit Server</h2>
+<pre>exit</pre>
+</div>
+
+<div class="section">
+<h2>✅ Best Practices</h2>
+<ul>
+<li>Always use screen or tmux</li>
+<li>Activate correct conda environment</li>
+<li>Use appropriate thread count</li>
+<li>Monitor resources with htop</li>
+<li>Download results before cleanup</li>
+<li>Avoid running heavy jobs without screen</li>
+</ul>
+</div>
+
+</body>
+</html>
 
