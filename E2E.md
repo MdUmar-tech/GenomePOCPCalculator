@@ -127,13 +127,19 @@ Step 1: Run Prokka
 Check results:
 
 `ls prokka_results/`
+
 Step 2: Extract Proteins
+
 `python extract_prokka_protein.py`
+
 Step 3: Run POCP Calculation
-`python GenomePOCPCalculator.py \
+
+```bash
+python GenomePOCPCalculator.py \
     -i proteins \
     -o pocp_results \
-    -t 18`
+    -t 18
+```
 
 Adjust threads (-t) based on server CPU capacity.
 
