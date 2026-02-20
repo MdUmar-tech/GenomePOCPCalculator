@@ -139,6 +139,7 @@ Navigate to desired local directory:
 Download specific files:
 
 `scp -i id_rsa root@164.52.214.201:/root/spades_output/contigs.fasta .`
+
 `scp -i id_rsa root@164.52.214.201:/root/spades_output/scaffolds.fasta .`
 
 Download full POCP results:
