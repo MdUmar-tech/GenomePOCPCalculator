@@ -15,14 +15,17 @@ Running POCP Pipeline on a Remote Linux Server
 ## 🔐 1️⃣ Connect to the Remote Server
 
 From your local machine, connect using your private key:
+
 `ssh -i id_rsa root@164.52.215.50`
 If using a .pem key:
+
 `ssh -i mykey.pem root@164.52.215.50`
 Enter your password if prompted.
 
 # 📦 2️⃣ Install Miniconda (If Not Already Installed)
 
 Download Miniconda:
+
 `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
 Install:
 `bash Miniconda3-latest-Linux-x86_64.sh`
