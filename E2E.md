@@ -88,13 +88,14 @@ Upload scripts:
 
 or upload all in single steps 
 
-`scp -i mykey.pem -r \
+```bash
+scp -i mykey.pem -r \
 genomes \
 run_prokka.py \
 extract_prokka_protein.py \
 GenomePOCPCalculator.py \
-root@164.52.215.50:/root/`
-
+root@164.52.215.50:/root/
+```
 Upload genomes folder:
 
 `scp -i mykey.pem -r genomes root@164.52.215.50:/root/`
