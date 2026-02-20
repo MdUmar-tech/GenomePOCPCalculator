@@ -74,11 +74,13 @@ Verify installation:
 Expected output:
 
 `prokka 1.15.6`
+
 ## 📤 5️⃣ Upload Scripts and Genomes to Server
 
 From your local system terminal:
 
 Upload scripts:
+
 `scp -i mykey.pem run_prokka.py root@164.52.215.50:/root/`
 
 `scp -i mykey.pem extract_prokka_protein.py root@164.52.215.50:/root/`
@@ -95,6 +97,7 @@ extract_prokka_protein.py \
 GenomePOCPCalculator.py \
 root@164.52.215.50:/root/
 ```
+
 Upload genomes folder:
 
 `scp -i mykey.pem -r genomes root@164.52.215.50:/root/`
@@ -102,6 +105,7 @@ Upload genomes folder:
 🖥️ 6️⃣ Use screen for Long Jobs (Highly Recommended)
 
 Create a new screen session:
+
 `screen -S pocp`
 
 This allows jobs to continue running even if SSH disconnects.
@@ -111,7 +115,9 @@ This allows jobs to continue running even if SSH disconnects.
 Press:
 
 Ctrl + A, then D
+
 🔹 To Reattach Later
+
 screen -r pocp
 
 If already attached elsewhere:
