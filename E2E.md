@@ -86,6 +86,15 @@ Upload scripts:
 
 `scp -i mykey.pem GenomePOCPCalculator.py root@164.52.215.50:/root/`
 
+or upload all in single steps 
+
+`scp -i mykey.pem -r \
+genomes \
+run_prokka.py \
+extract_prokka_protein.py \
+GenomePOCPCalculator.py \
+root@164.52.215.50:/root/`
+
 Upload genomes folder:
 
 `scp -i mykey.pem -r genomes root@164.52.215.50:/root/`
@@ -131,9 +140,11 @@ Adjust threads (-t) based on server CPU capacity.
 ## 📥 8️⃣ Download Results to Local Machine
 
 First exit from server:
+
 `exit`
 
 Navigate to desired local directory:
+
 `cd /path/to/your/local/folder`
 
 Download specific files:
@@ -145,9 +156,11 @@ Download specific files:
 Download full POCP results:
 
 `scp -i mykey.pem -r root@164.52.215.50:/root/pocp_results .`
+
 🧹 9️⃣ Clean Up Server (⚠ Use Carefully)
 
 To remove all files inside /root/:
+
 `rm -rf /root/*`
 
 ⚠ WARNING:
