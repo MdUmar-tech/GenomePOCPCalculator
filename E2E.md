@@ -171,9 +171,11 @@ Use only if you are absolutely sure.
 exit
 ✅ Best Practices
 
-✔ Always use screen or tmux
-✔ Activate correct conda environment before running scripts
-✔ Use appropriate thread count
-✔ Monitor resources with htop
-✔ Download results before cleanup
-✔ Avoid running heavy jobs directly without screen
+## ✅ Best Practices
+
+- Always use screen or tmux  
+- Activate correct conda environment before running scripts  
+- Use appropriate thread count  
+- Monitor resources with htop  
+- Download results before cleanup  
+- Avoid running heavy jobs directly without screen  
