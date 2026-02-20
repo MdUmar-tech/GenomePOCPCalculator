@@ -3,21 +3,14 @@ Running POCP Pipeline on a Remote Linux Server
 
 This guide explains how to:
 
-Connect to a remote server via SSH
-
-Install Miniconda
-
-Configure Conda environment
-
-Install Prokka
-
-Upload scripts and genomes
-
-Run the POCP workflow using screen
-
-Download results
-
-Clean up the server
+1. Connect to a remote server via SSH
+2. Install Miniconda
+3. Configure Conda environment
+4. Install Prokka
+5. Upload scripts and genomes
+6. Run the POCP workflow using screen
+7. Download results
+8. Clean up the server
 
 🔐 1️⃣ Connect to the Remote Server
 
