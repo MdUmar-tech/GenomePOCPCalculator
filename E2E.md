@@ -1,7 +1,7 @@
 🖥️ End-to-End (E2E) Server Setup Guide
 Running POCP Pipeline on a Remote Linux Server
 
-This guide explains how to:
+## This guide explains how to:
 
 1. Connect to a remote server via SSH
 2. Install Miniconda
@@ -12,11 +12,11 @@ This guide explains how to:
 7. Download results
 8. Clean up the server
 
-🔐 1️⃣ Connect to the Remote Server
+## 🔐 1️⃣ Connect to the Remote Server
 
-## From your local machine, connect using your private key:
+From your local machine, connect using your private key:
 `ssh -i id_rsa root@164.52.215.50`
-# If using a .pem key:
+If using a .pem key:
 `ssh -i mykey.pem root@164.52.215.50`
 Enter your password if prompted.
 
