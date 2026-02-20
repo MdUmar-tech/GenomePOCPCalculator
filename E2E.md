@@ -17,9 +17,11 @@ Running POCP Pipeline on a Remote Linux Server
 From your local machine, connect using your private key:
 
 `ssh -i id_rsa root@164.52.215.50`
+
 If using a .pem key:
 
 `ssh -i mykey.pem root@164.52.215.50`
+
 Enter your password if prompted.
 
 # 📦 2️⃣ Install Miniconda (If Not Already Installed)
@@ -27,14 +29,23 @@ Enter your password if prompted.
 Download Miniconda:
 
 `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
+
 Install:
+
 `bash Miniconda3-latest-Linux-x86_64.sh`
+
 Follow installation prompts and press Enter to accept defaults.
+
 Activate conda:
+
 `source ~/.bashrc`
+
 Verify installation:
+
 `conda --version`
+
 ⚙️ 3️⃣ Configure Conda Channels (Important for Bioinformatics)
+
 `conda config --remove-key channels
 conda config --add channels conda-forge
 conda config --add channels bioconda
@@ -46,6 +57,7 @@ This ensures correct package priority and avoids dependency conflicts.
 ## 🧬 4️⃣ Create Prokka Environment
 
 Create a dedicated environment:
+
 `conda create -n prokka_env prokka=1.15.6 -y`
 
 Activate environment:
