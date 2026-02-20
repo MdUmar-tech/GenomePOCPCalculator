@@ -65,21 +65,31 @@ Create a dedicated environment:
 `conda create -n prokka_env prokka=1.15.6 -y`
 
 Activate environment:
+
 `conda activate prokka_env`
+
 Verify installation:
+
 `prokka --version`
+
 Expected output:
+
 `prokka 1.15.6`
-📤 5️⃣ Upload Scripts and Genomes to Server
+## 📤 5️⃣ Upload Scripts and Genomes to Server
+
 From your local system terminal:
 
 Upload scripts:
-`scp -i mykey.pem run_prokka.py root@164.52.215.50:/root/
-scp -i mykey.pem extract_prokka_protein.py root@164.52.215.50:/root/
-scp -i mykey.pem GenomePOCPCalculator.py root@164.52.215.50:/root/`
+`scp -i mykey.pem run_prokka.py root@164.52.215.50:/root/`
+
+`scp -i mykey.pem extract_prokka_protein.py root@164.52.215.50:/root/`
+
+`scp -i mykey.pem GenomePOCPCalculator.py root@164.52.215.50:/root/`
 
 Upload genomes folder:
+
 `scp -i mykey.pem -r genomes root@164.52.215.50:/root/`
+
 🖥️ 6️⃣ Use screen for Long Jobs (Highly Recommended)
 
 Create a new screen session:
