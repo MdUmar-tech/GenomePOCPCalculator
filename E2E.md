@@ -14,7 +14,7 @@ This guide explains how to:
 
 🔐 1️⃣ Connect to the Remote Server
 
-# From your local machine, connect using your private key:
+## From your local machine, connect using your private key:
 `ssh -i id_rsa root@164.52.215.50`
 # If using a .pem key:
 `ssh -i mykey.pem root@164.52.215.50`
