@@ -20,7 +20,7 @@ If using a .pem key:
 `ssh -i mykey.pem root@164.52.215.50`
 Enter your password if prompted.
 
-📦 2️⃣ Install Miniconda (If Not Already Installed)
+# 📦 2️⃣ Install Miniconda (If Not Already Installed)
 
 Download Miniconda:
 `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
@@ -40,7 +40,7 @@ conda config --set channel_priority strict`
 
 This ensures correct package priority and avoids dependency conflicts.
 
-🧬 4️⃣ Create Prokka Environment
+## 🧬 4️⃣ Create Prokka Environment
 
 Create a dedicated environment:
 `conda create -n prokka_env prokka=1.15.6 -y`
@@ -99,7 +99,7 @@ Step 3: Run POCP Calculation
 
 Adjust threads (-t) based on server CPU capacity.
 
-📥 8️⃣ Download Results to Local Machine
+## 📥 8️⃣ Download Results to Local Machine
 
 First exit from server:
 `exit`
