@@ -13,7 +13,8 @@ os.makedirs(prokka_out_dir, exist_ok=True)
 os.makedirs(gff_out_dir, exist_ok=True)
 
 # Get all .fna files in the input directory
-fna_files = glob.glob(os.path.join(input_dir, '*.fna'))
+fna_files = glob.glob(os.path.join(input_dir, "*.fna")) + \
+            glob.glob(os.path.join(input_dir, "*.fasta"))
 
 # Run Prokka for each .fna file
 for fna_file in fna_files:
